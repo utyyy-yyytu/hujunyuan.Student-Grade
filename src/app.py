@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return '<h1>学生成绩管理系统</h1><p>项目已成功启动！</p>'
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
