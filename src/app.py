@@ -64,6 +64,55 @@ def student_delete(id):
     db.close()
     return redirect(url_for('student_list'))
 
+# 课程列表
+@app.route('/courses')
+def course_list():
+    db = get_db()
+    courses = db.execute("SELECT * FROM course").fetchall()
+    db.close()
+    return render_template('courses.html', courses=courses)
+
+# 添加课程
+@app.route('/courses/add', methods=['GET', 'POST'])
+def course_add():
+    if request.method == 'POST':
+        db = get_db()
+        db.execute(
+            "INSERT INTO course (course_no, name, credit, teacher) VALUES (?, ?, ?, ?)",
+            (request.form['course_no'], request.form['name'],
+             request.form['credit'], request.form['teacher'])
+        )
+        db.commit()
+        db.close()
+        return redirect(url_for('course_list'))
+    return render_template('course_form.html', course=None)
+
+# 编辑课程
+@app.route('/courses/edit/<int:id>', methods=['GET', 'POST'])
+def course_edit(id):
+    db = get_db()
+    if request.method == 'POST':
+        db.execute(
+            "UPDATE course SET course_no=?, name=?, credit=?, teacher=? WHERE id=?",
+            (request.form['course_no'], request.form['name'],
+             request.form['credit'], request.form['teacher'], id)
+        )
+        db.commit()
+        db.close()
+        return redirect(url_for('course_list'))
+    course = db.execute("SELECT * FROM course WHERE id=?", (id,)).fetchone()
+    db.close()
+    return render_template('course_form.html', course=course)
+
+# 删除课程
+@app.route('/courses/delete/<int:id>')
+def course_delete(id):
+    db = get_db()
+    db.execute("DELETE FROM course WHERE id=?", (id,))
+    db.commit()
+    db.close()
+    return redirect(url_for('course_list'))
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)

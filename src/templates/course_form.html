@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ '编辑' if course else '添加' }}课程 - 学生成绩管理系统{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">{{ '编辑课程信息' if course else '添加课程' }}</h3>
+
+<div class="card p-4" style="max-width: 600px;">
+    <form method="post" action="{{ '/courses/edit/' ~ course['id'] if course else '/courses/add' }}">
+        <div class="mb-3">
+            <label class="form-label">课程编号</label>
+            <input type="text" class="form-control" name="course_no" value="{{ course['course_no'] if course else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">课程名称</label>
+            <input type="text" class="form-control" name="name" value="{{ course['name'] if course else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">学分</label>
+            <input type="number" step="0.5" class="form-control" name="credit" value="{{ course['credit'] if course else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">授课教师</label>
+            <input type="text" class="form-control" name="teacher" value="{{ course['teacher'] if course else '' }}">
+        </div>
+        <button type="submit" class="btn btn-dark">{{ '保存修改' if course else '添加' }}</button>
+        <a href="/courses" class="btn btn-outline-secondary">取消</a>
+    </form>
+</div>
+{% endblock %}
