@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ '编辑' if student else '添加' }}学生 - 学生成绩管理系统{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">{{ '编辑学生信息' if student else '添加学生' }}</h3>
+
+<div class="card p-4" style="max-width: 600px;">
+    <form method="post" action="{{ '/students/edit/' ~ student['id'] if student else '/students/add' }}">
+        <div class="mb-3">
+            <label class="form-label">学号</label>
+            <input type="text" class="form-control" name="stu_no" value="{{ student['stu_no'] if student else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">姓名</label>
+            <input type="text" class="form-control" name="name" value="{{ student['name'] if student else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">性别</label>
+            <select class="form-control" name="gender">
+                <option value="男" {{ 'selected' if student and student['gender'] == '男' }}>男</option>
+                <option value="女" {{ 'selected' if student and student['gender'] == '女' }}>女</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">班级</label>
+            <input type="text" class="form-control" name="class_name" value="{{ student['class_name'] if student else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">电话</label>
+            <input type="text" class="form-control" name="phone" value="{{ student['phone'] if student else '' }}">
+        </div>
+        <button type="submit" class="btn btn-dark">{{ '保存修改' if student else '添加' }}</button>
+        <a href="/students" class="btn btn-outline-secondary">取消</a>
+    </form>
+</div>
+{% endblock %}
