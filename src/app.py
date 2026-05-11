@@ -113,6 +113,76 @@ def course_delete(id):
     db.close()
     return redirect(url_for('course_list'))
 
+# 成绩列表
+@app.route('/scores')
+def score_list():
+    keyword = request.args.get('keyword', '')
+    db = get_db()
+    if keyword:
+        scores = db.execute("""
+            SELECT score.*, student.stu_no, student.name as student_name, course.name as course_name
+            FROM score
+            JOIN student ON score.student_id = student.id
+            JOIN course ON score.course_id = course.id
+            WHERE student.name LIKE ? OR course.name LIKE ?
+        """, (f'%{keyword}%', f'%{keyword}%')).fetchall()
+    else:
+        scores = db.execute("""
+            SELECT score.*, student.stu_no, student.name as student_name, course.name as course_name
+            FROM score
+            JOIN student ON score.student_id = student.id
+            JOIN course ON score.course_id = course.id
+        """).fetchall()
+    db.close()
+    return render_template('scores.html', scores=scores, keyword=keyword)
+
+# 录入成绩
+@app.route('/scores/add', methods=['GET', 'POST'])
+def score_add():
+    db = get_db()
+    if request.method == 'POST':
+        db.execute(
+            "INSERT INTO score (student_id, course_id, score, semester) VALUES (?, ?, ?, ?)",
+            (request.form['student_id'], request.form['course_id'],
+             request.form['score'], request.form['semester'])
+        )
+        db.commit()
+        db.close()
+        return redirect(url_for('score_list'))
+    students = db.execute("SELECT * FROM student").fetchall()
+    courses = db.execute("SELECT * FROM course").fetchall()
+    db.close()
+    return render_template('score_form.html', score=None, students=students, courses=courses)
+
+# 编辑成绩
+@app.route('/scores/edit/<int:id>', methods=['GET', 'POST'])
+def score_edit(id):
+    db = get_db()
+    if request.method == 'POST':
+        db.execute(
+            "UPDATE score SET student_id=?, course_id=?, score=?, semester=? WHERE id=?",
+            (request.form['student_id'], request.form['course_id'],
+             request.form['score'], request.form['semester'], id)
+        )
+        db.commit()
+        db.close()
+        return redirect(url_for('score_list'))
+    score = db.execute("SELECT * FROM score WHERE id=?", (id,)).fetchone()
+    students = db.execute("SELECT * FROM student").fetchall()
+    courses = db.execute("SELECT * FROM course").fetchall()
+    db.close()
+    return render_template('score_form.html', score=score, students=students, courses=courses)
+
+# 删除成绩
+@app.route('/scores/delete/<int:id>')
+def score_delete(id):
+    db = get_db()
+    db.execute("DELETE FROM score WHERE id=?", (id,))
+    db.commit()
+    db.close()
+    return redirect(url_for('score_list'))
+
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
