@@ -1,3 +1,9 @@
+import sys
+import os
+
+# 将项目根目录加入 Python 路径，解决导入问题
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from flask import Flask, render_template, request, redirect, url_for
 from src.models.student_model import StudentModel
 from src.models.course_model import CourseModel
@@ -173,8 +179,9 @@ def statistics():
     course_count = CourseModel.count_courses()
     score_count = ScoreModel.count_scores()
 
-    # 各课程平均分（柱状图数据）
     courses = CourseModel.get_all_courses()
+
+    # 各课程平均分（柱状图数据）
     bar_labels = []
     bar_data = []
     for c in courses:
