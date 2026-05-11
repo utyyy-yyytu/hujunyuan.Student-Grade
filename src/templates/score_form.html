@@ -12,7 +12,7 @@
             <select class="form-control" name="student_id" required>
                 <option value="">-- 请选择学生 --</option>
                 {% for s in students %}
-                <option value="{{ s['id'] }}" {{ 'selected' if score and score['student_id'] == s['id'] }}>{{ s['stu_no'] }} - {{ s['name'] }}</option>
+                <option value="{{ s['id'] }}" {{ 'selected' if score and score['student_id'] == s['id'] }}>{{ s['student_no'] }} - {{ s['name'] }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -21,17 +21,25 @@
             <select class="form-control" name="course_id" required>
                 <option value="">-- 请选择课程 --</option>
                 {% for c in courses %}
-                <option value="{{ c['id'] }}" {{ 'selected' if score and score['course_id'] == c['id'] }}>{{ c['course_no'] }} - {{ c['name'] }}</option>
+                <option value="{{ c['id'] }}" {{ 'selected' if score and score['course_id'] == c['id'] }}>{{ c['course_no'] }} - {{ c['course_name'] }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="mb-3">
-            <label class="form-label">成绩</label>
-            <input type="number" step="0.01" class="form-control" name="score" value="{{ score['score'] if score else '' }}" required>
+            <label class="form-label">平时成绩</label>
+            <input type="number" step="0.01" class="form-control" name="usual_score" value="{{ score['usual_score'] if score else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">期末成绩</label>
+            <input type="number" step="0.01" class="form-control" name="exam_score" value="{{ score['exam_score'] if score else '' }}" required>
         </div>
         <div class="mb-3">
             <label class="form-label">学期</label>
-            <input type="text" class="form-control" name="semester" placeholder="例如：2024-1" value="{{ score['semester'] if score else '' }}">
+            <input type="text" class="form-control" name="term" placeholder="例如：2024-2025上学期" value="{{ score['term'] if score and score['term'] else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">备注</label>
+            <input type="text" class="form-control" name="remark" value="{{ score['remark'] if score and score['remark'] else '' }}">
         </div>
         <button type="submit" class="btn btn-dark">{{ '保存修改' if score else '录入' }}</button>
         <a href="/scores" class="btn btn-outline-secondary">取消</a>

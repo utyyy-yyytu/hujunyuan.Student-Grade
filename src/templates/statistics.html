@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}数据统计 - 学生成绩管理系统{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">数据统计</h3>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center p-4">
+            <h6 class="text-muted">学生总数</h6>
+            <h2>{{ student_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-4">
+            <h6 class="text-muted">课程总数</h6>
+            <h2>{{ course_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-4">
+            <h6 class="text-muted">成绩记录数</h6>
+            <h2>{{ score_count }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5 class="mb-3">各课程平均分</h5>
+            <div id="barChart" style="height: 350px;"></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5 class="mb-3">成绩分布</h5>
+            <div id="pieChart" style="height: 350px;"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card p-4">
+            <h5 class="mb-3">课程成绩统计</h5>
+            <form class="row mb-3" method="get" action="/statistics">
+                <div class="col-md-4">
+                    <select class="form-control" name="course_id" onchange="this.form.submit()">
+                        <option value="">-- 选择课程查看统计 --</option>
+                        {% for c in courses %}
+                        <option value="{{ c['id'] }}" {{ 'selected' if selected_course and selected_course == c['id']|string }}>{{ c['course_name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+
+            {% if course_stats %}
+            <div class="row mb-3">
+                <div class="col-md-2"><strong>学生数：</strong>{{ course_stats['student_count'] }}</div>
+                <div class="col-md-2"><strong>平均分：</strong>{{ course_stats['avg_score'] }}</div>
+                <div class="col-md-2"><strong>最高分：</strong>{{ course_stats['max_score'] }}</div>
+                <div class="col-md-2"><strong>最低分：</strong>{{ course_stats['min_score'] }}</div>
+                <div class="col-md-2"><strong>及格人数：</strong>{{ course_stats['pass_count'] }}</div>
+                <div class="col-md-2"><strong>及格率：</strong>{{ course_stats['pass_rate'] }}%</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card p-4">
+            <h5 class="mb-3">成绩排名</h5>
+            <form class="row mb-3" method="get" action="/statistics">
+                <div class="col-md-3">
+                    <select class="form-control" name="rank_course_id" onchange="this.form.submit()">
+                        <option value="">-- 选择课程 --</option>
+                        {% for c in courses %}
+                        <option value="{{ c['id'] }}" {{ 'selected' if rank_course and rank_course == c['id']|string }}>{{ c['course_name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+
+            {% if ranking %}
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>排名</th>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>课程</th>
+                        <th>平时成绩</th>
+                        <th>期末成绩</th>
+                        <th>总评成绩</th>
+                        <th>学期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in ranking %}
+                    <tr>
+                        <td>{{ r['ranking'] }}</td>
+                        <td>{{ r['student_no'] }}</td>
+                        <td>{{ r['student_name'] }}</td>
+                        <td>{{ r['course_name'] }}</td>
+                        <td>{{ r['usual_score'] }}</td>
+                        <td>{{ r['exam_score'] }}</td>
+                        <td>{{ r['total_score'] }}</td>
+                        <td>{{ r['term'] or '' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% elif rank_course %}
+            <p class="text-muted text-center">该课程暂无成绩数据</p>
+            {% else %}
+            <p class="text-muted text-center">请选择课程查看排名</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<script>
+    var barChart = echarts.init(document.getElementById('barChart'));
+    barChart.setOption({
+        tooltip: {},
+        xAxis: {
+            type: 'category',
+            data: {{ bar_labels | tojson }},
+            axisLabel: { rotate: 20 }
+        },
+        yAxis: { type: 'value', min: 0, max: 100 },
+        series: [{
+            type: 'bar',
+            data: {{ bar_data | tojson }},
+            itemStyle: { color: '#2c3e50' }
+        }]
+    });
+
+    var pieChart = echarts.init(document.getElementById('pieChart'));
+    pieChart.setOption({
+        tooltip: { trigger: 'item' },
+        legend: { bottom: 0 },
+        series: [{
+            type: 'pie',
+            radius: '60%',
+            data: {{ pie_data | tojson }}
+        }]
+    });
+</script>
+{% endblock %}

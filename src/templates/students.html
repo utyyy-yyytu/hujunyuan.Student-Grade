@@ -10,7 +10,7 @@
 
 <form class="row mb-3" method="get" action="/students">
     <div class="col-md-4">
-        <input type="text" class="form-control" name="keyword" placeholder="搜索学号或姓名" value="{{ keyword or '' }}">
+        <input type="text" class="form-control" name="keyword" placeholder="搜索学号、姓名、专业、手机、邮箱" value="{{ keyword or '' }}">
     </div>
     <div class="col-md-2">
         <button type="submit" class="btn btn-outline-dark">搜索</button>
@@ -23,19 +23,31 @@
             <th>学号</th>
             <th>姓名</th>
             <th>性别</th>
-            <th>班级</th>
+            <th>专业</th>
+            <th>年级</th>
             <th>电话</th>
+            <th>邮箱</th>
+            <th>状态</th>
             <th>操作</th>
         </tr>
     </thead>
     <tbody>
         {% for s in students %}
         <tr>
-            <td>{{ s['stu_no'] }}</td>
+            <td>{{ s['student_no'] }}</td>
             <td>{{ s['name'] }}</td>
             <td>{{ s['gender'] }}</td>
-            <td>{{ s['class_name'] }}</td>
-            <td>{{ s['phone'] }}</td>
+            <td>{{ s['major'] or '' }}</td>
+            <td>{{ s['grade_year'] or '' }}</td>
+            <td>{{ s['phone'] or '' }}</td>
+            <td>{{ s['email'] or '' }}</td>
+            <td>
+                {% if s['status'] == 1 %}
+                <span class="badge bg-success">正常</span>
+                {% else %}
+                <span class="badge bg-secondary">禁用</span>
+                {% endif %}
+            </td>
             <td>
                 <a href="/students/edit/{{ s['id'] }}" class="btn btn-sm btn-outline-primary">编辑</a>
                 <a href="/students/delete/{{ s['id'] }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除吗？')">删除</a>
@@ -43,7 +55,7 @@
         </tr>
         {% else %}
         <tr>
-            <td colspan="6" class="text-center text-muted">暂无学生数据</td>
+            <td colspan="9" class="text-center text-muted">暂无学生数据</td>
         </tr>
         {% endfor %}
     </tbody>

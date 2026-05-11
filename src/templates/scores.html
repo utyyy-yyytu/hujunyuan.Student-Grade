@@ -10,7 +10,7 @@
 
 <form class="row mb-3" method="get" action="/scores">
     <div class="col-md-4">
-        <input type="text" class="form-control" name="keyword" placeholder="搜索学生姓名或课程名称" value="{{ keyword or '' }}">
+        <input type="text" class="form-control" name="keyword" placeholder="搜索学号、姓名、课程编号、课程名称、学期" value="{{ keyword or '' }}">
     </div>
     <div class="col-md-2">
         <button type="submit" class="btn btn-outline-dark">搜索</button>
@@ -22,20 +22,28 @@
         <tr>
             <th>学号</th>
             <th>学生姓名</th>
+            <th>课程编号</th>
             <th>课程名称</th>
-            <th>成绩</th>
+            <th>平时成绩</th>
+            <th>期末成绩</th>
+            <th>总评成绩</th>
             <th>学期</th>
+            <th>备注</th>
             <th>操作</th>
         </tr>
     </thead>
     <tbody>
         {% for s in scores %}
         <tr>
-            <td>{{ s['stu_no'] }}</td>
+            <td>{{ s['student_no'] }}</td>
             <td>{{ s['student_name'] }}</td>
+            <td>{{ s['course_no'] }}</td>
             <td>{{ s['course_name'] }}</td>
-            <td>{{ s['score'] }}</td>
-            <td>{{ s['semester'] }}</td>
+            <td>{{ s['usual_score'] }}</td>
+            <td>{{ s['exam_score'] }}</td>
+            <td>{{ s['total_score'] }}</td>
+            <td>{{ s['term'] or '' }}</td>
+            <td>{{ s['remark'] or '' }}</td>
             <td>
                 <a href="/scores/edit/{{ s['id'] }}" class="btn btn-sm btn-outline-primary">编辑</a>
                 <a href="/scores/delete/{{ s['id'] }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除吗？')">删除</a>
@@ -43,7 +51,7 @@
         </tr>
         {% else %}
         <tr>
-            <td colspan="6" class="text-center text-muted">暂无成绩数据</td>
+            <td colspan="10" class="text-center text-muted">暂无成绩数据</td>
         </tr>
         {% endfor %}
     </tbody>

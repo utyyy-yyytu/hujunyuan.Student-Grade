@@ -13,7 +13,7 @@
         </div>
         <div class="mb-3">
             <label class="form-label">课程名称</label>
-            <input type="text" class="form-control" name="name" value="{{ course['name'] if course else '' }}" required>
+            <input type="text" class="form-control" name="course_name" value="{{ course['course_name'] if course else '' }}" required>
         </div>
         <div class="mb-3">
             <label class="form-label">学分</label>
@@ -21,7 +21,11 @@
         </div>
         <div class="mb-3">
             <label class="form-label">授课教师</label>
-            <input type="text" class="form-control" name="teacher" value="{{ course['teacher'] if course else '' }}">
+            <input type="text" class="form-control" name="teacher" value="{{ course['teacher'] if course and course['teacher'] else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">课程简介</label>
+            <textarea class="form-control" name="description" rows="3">{{ course['description'] if course and course['description'] else '' }}</textarea>
         </div>
         <button type="submit" class="btn btn-dark">{{ '保存修改' if course else '添加' }}</button>
         <a href="/courses" class="btn btn-outline-secondary">取消</a>
