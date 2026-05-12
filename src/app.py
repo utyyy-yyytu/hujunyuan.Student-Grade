@@ -1,13 +1,7 @@
-import sys
-import os
-
-# 将项目根目录加入 Python 路径，解决导入问题
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from flask import Flask, render_template, request, redirect, url_for
-from src.models.student_model import StudentModel
-from src.models.course_model import CourseModel
-from src.models.score_model import ScoreModel
+from flask import Flask, render_template, request, redirect, url_for, send_file
+from models.student_model import StudentModel
+from models.course_model import CourseModel
+from models.score_model import ScoreModel
 
 app = Flask(__name__)
 
@@ -172,6 +166,45 @@ def score_delete(id):
     ScoreModel.delete_score(id)
     return redirect(url_for('score_list'))
 
+# 导出成绩为Excel
+@app.route('/scores/export')
+def score_export():
+    from openpyxl import Workbook
+    import io
+
+    scores = ScoreModel.get_all_scores()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = '成绩表'
+
+    headers = ['学号', '学生姓名', '课程编号', '课程名称', '平时成绩', '期末成绩', '总评成绩', '学期', '备注']
+    ws.append(headers)
+
+    for s in scores:
+        ws.append([
+            s['student_no'],
+            s['student_name'],
+            s['course_no'],
+            s['course_name'],
+            s['usual_score'],
+            s['exam_score'],
+            s['total_score'],
+            s['term'] or '',
+            s['remark'] or ''
+        ])
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='成绩表.xlsx'
+    )
+
 # 数据统计
 @app.route('/statistics')
 def statistics():
@@ -180,8 +213,6 @@ def statistics():
     score_count = ScoreModel.count_scores()
 
     courses = CourseModel.get_all_courses()
-
-    # 各课程平均分（柱状图数据）
     bar_labels = []
     bar_data = []
     for c in courses:
@@ -190,7 +221,6 @@ def statistics():
             bar_labels.append(c['course_name'])
             bar_data.append(float(stats['avg_score']))
 
-    # 成绩分布（饼图数据）
     all_scores = ScoreModel.get_all_scores()
     dist = {'优秀(90-100)': 0, '良好(80-89)': 0, '中等(70-79)': 0, '及格(60-69)': 0, '不及格(<60)': 0}
     for s in all_scores:
@@ -207,13 +237,11 @@ def statistics():
             dist['不及格(<60)'] += 1
     pie_data = [{"name": k, "value": v} for k, v in dist.items() if v > 0]
 
-    # 课程统计
     selected_course = request.args.get('course_id', '')
     course_stats = None
     if selected_course:
         course_stats = ScoreModel.get_statistics_by_course(int(selected_course))
 
-    # 排名
     rank_course = request.args.get('rank_course_id', '')
     ranking = []
     if rank_course:
