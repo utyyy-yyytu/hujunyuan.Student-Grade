@@ -3,48 +3,67 @@
 {% block title %}{{ '编辑' if student else '添加' }}学生 - 学生成绩管理系统{% endblock %}
 
 {% block content %}
-<h3 class="mb-4">{{ '编辑学生信息' if student else '添加学生' }}</h3>
+<div class="page-header">
+    <h3>
+        <i class="bi bi-{{ 'pencil' if student else 'person-plus' }} me-2"></i>
+        {{ '编辑学生信息' if student else '添加学生' }}
+    </h3>
+</div>
 
-<div class="card p-4" style="max-width: 600px;">
+<div class="card p-4" style="max-width: 650px;">
     <form method="post" action="{{ '/students/edit/' ~ student['id'] if student else '/students/add' }}">
-        <div class="mb-3">
-            <label class="form-label">学号</label>
-            <input type="text" class="form-control" name="student_no" value="{{ student['student_no'] if student else '' }}" required>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">学号 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="student_no" value="{{ student['student_no'] if student else '' }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="name" value="{{ student['name'] if student else '' }}" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">姓名</label>
-            <input type="text" class="form-control" name="name" value="{{ student['name'] if student else '' }}" required>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">性别</label>
+                <select class="form-select" name="gender">
+                    <option value="男" {{ 'selected' if student and student['gender'] == '男' }}>男</option>
+                    <option value="女" {{ 'selected' if student and student['gender'] == '女' }}>女</option>
+                    <option value="其他" {{ 'selected' if student and student['gender'] == '其他' }}>其他</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">出生日期</label>
+                <input type="date" class="form-control" name="birthday" value="{{ student['birthday'] if student and student['birthday'] else '' }}">
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">性别</label>
-            <select class="form-control" name="gender">
-                <option value="男" {{ 'selected' if student and student['gender'] == '男' }}>男</option>
-                <option value="女" {{ 'selected' if student and student['gender'] == '女' }}>女</option>
-                <option value="其他" {{ 'selected' if student and student['gender'] == '其他' }}>其他</option>
-            </select>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">专业</label>
+                <input type="text" class="form-control" name="major" value="{{ student['major'] if student and student['major'] else '' }}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">年级</label>
+                <input type="number" class="form-control" name="grade_year" value="{{ student['grade_year'] if student and student['grade_year'] else '' }}">
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">出生日期</label>
-            <input type="date" class="form-control" name="birthday" value="{{ student['birthday'] if student and student['birthday'] else '' }}">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">电话</label>
+                <input type="text" class="form-control" name="phone" value="{{ student['phone'] if student and student['phone'] else '' }}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">邮箱</label>
+                <input type="email" class="form-control" name="email" value="{{ student['email'] if student and student['email'] else '' }}">
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">专业</label>
-            <input type="text" class="form-control" name="major" value="{{ student['major'] if student and student['major'] else '' }}">
+        <div class="mt-3">
+            <button type="submit" class="btn btn-dark">
+                <i class="bi bi-check-lg me-1"></i>{{ '保存修改' if student else '添加学生' }}
+            </button>
+            <a href="/students" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-arrow-left me-1"></i>返回列表
+            </a>
         </div>
-        <div class="mb-3">
-            <label class="form-label">年级</label>
-            <input type="number" class="form-control" name="grade_year" value="{{ student['grade_year'] if student and student['grade_year'] else '' }}">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">电话</label>
-            <input type="text" class="form-control" name="phone" value="{{ student['phone'] if student and student['phone'] else '' }}">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">邮箱</label>
-            <input type="email" class="form-control" name="email" value="{{ student['email'] if student and student['email'] else '' }}">
-        </div>
-        <button type="submit" class="btn btn-dark">{{ '保存修改' if student else '添加' }}</button>
-        <a href="/students" class="btn btn-outline-secondary">取消</a>
     </form>
 </div>
 {% endblock %}
