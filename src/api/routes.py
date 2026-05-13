@@ -1,8 +1,14 @@
 from flask import Blueprint, request, jsonify
+from io import BytesIO
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill
+from flask import send_file
 
 from src.models.student_model import StudentModel
 from src.models.course_model import CourseModel
 from src.models.score_model import ScoreModel
+
+
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -28,6 +34,47 @@ def fail(message="fail", code=400, data=None):
 
 def get_json():
     return request.get_json(silent=True) or {}
+
+def create_excel_response(title, headers, rows, filename):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = title
+
+    ws.append(headers)
+    for row in rows:
+        ws.append(row)
+
+    header_fill = PatternFill("solid", fgColor="4F81BD")
+    header_font = Font(color="FFFFFF", bold=True)
+    center_alignment = Alignment(horizontal="center", vertical="center")
+
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = center_alignment
+
+    for column_cells in ws.columns:
+        max_length = 0
+        column_letter = column_cells[0].column_letter
+        for cell in column_cells:
+            try:
+                cell_value = str(cell.value) if cell.value is not None else ""
+                if len(cell_value) > max_length:
+                    max_length = len(cell_value)
+            except Exception:
+                pass
+        ws.column_dimensions[column_letter].width = max_length + 4
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 
 # =========================
@@ -414,3 +461,84 @@ def get_scores_by_student(student_id):
 def get_scores_by_course(course_id):
     result = ScoreModel.get_scores_by_course(course_id)
     return success(result)
+
+@api_bp.route("/export/students", methods=["GET"])
+def export_students():
+    students = StudentModel.get_all_students()
+
+    headers = ["ID", "学号", "姓名", "性别", "出生日期", "手机号", "邮箱", "专业", "年级", "状态"]
+
+    rows = []
+    for s in students:
+        rows.append([
+            s.get("id"),
+            s.get("student_no"),
+            s.get("name"),
+            s.get("gender"),
+            s.get("birthday"),
+            s.get("phone"),
+            s.get("email"),
+            s.get("major"),
+            s.get("grade_year"),
+            "正常" if s.get("status") == 1 else "禁用"
+        ])
+
+    return create_excel_response(
+        title="学生信息",
+        headers=headers,
+        rows=rows,
+        filename="学生信息导出.xlsx"
+    )
+
+@api_bp.route("/export/courses", methods=["GET"])
+def export_courses():
+    courses = CourseModel.get_all_courses()
+
+    headers = ["ID", "课程编号", "课程名称", "学分", "教师", "课程简介", "状态"]
+
+    rows = []
+    for c in courses:
+        rows.append([
+            c.get("id"),
+            c.get("course_no"),
+            c.get("course_name"),
+            c.get("credit"),
+            c.get("teacher"),
+            c.get("description"),
+            "正常" if c.get("status") == 1 else "停用"
+        ])
+
+    return create_excel_response(
+        title="课程信息",
+        headers=headers,
+        rows=rows,
+        filename="课程信息导出.xlsx"
+    )
+
+@api_bp.route("/export/scores", methods=["GET"])
+def export_scores():
+    scores = ScoreModel.get_all_scores()
+
+    headers = ["ID", "学号", "姓名", "课程编号", "课程名称", "平时成绩", "期末成绩", "总评成绩", "学期", "备注"]
+
+    rows = []
+    for s in scores:
+        rows.append([
+            s.get("id"),
+            s.get("student_no"),
+            s.get("student_name"),
+            s.get("course_no"),
+            s.get("course_name"),
+            s.get("usual_score"),
+            s.get("exam_score"),
+            s.get("total_score"),
+            s.get("term"),
+            s.get("remark")
+        ])
+
+    return create_excel_response(
+        title="成绩信息",
+        headers=headers,
+        rows=rows,
+        filename="成绩信息导出.xlsx"
+    )
