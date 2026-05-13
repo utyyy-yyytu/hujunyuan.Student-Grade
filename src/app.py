@@ -1,7 +1,11 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from flask import Flask, render_template, request, redirect, url_for, send_file
-from models.student_model import StudentModel
-from models.course_model import CourseModel
-from models.score_model import ScoreModel
+from src.models.student_model import StudentModel
+from src.models.course_model import CourseModel
+from src.models.score_model import ScoreModel
 
 app = Flask(__name__)
 
