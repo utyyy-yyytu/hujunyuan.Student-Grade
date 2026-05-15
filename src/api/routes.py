@@ -490,30 +490,7 @@ def export_students():
         filename="学生信息导出.xlsx"
     )
 
-@api_bp.route("/export/courses", methods=["GET"])
-def export_courses():
-    courses = CourseModel.get_all_courses()
 
-    headers = ["ID", "课程编号", "课程名称", "学分", "教师", "课程简介", "状态"]
-
-    rows = []
-    for c in courses:
-        rows.append([
-            c.get("id"),
-            c.get("course_no"),
-            c.get("course_name"),
-            c.get("credit"),
-            c.get("teacher"),
-            c.get("description"),
-            "正常" if c.get("status") == 1 else "停用"
-        ])
-
-    return create_excel_response(
-        title="课程信息",
-        headers=headers,
-        rows=rows,
-        filename="课程信息导出.xlsx"
-    )
 
 @api_bp.route("/export/scores", methods=["GET"])
 def export_scores():
