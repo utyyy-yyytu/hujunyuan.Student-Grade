@@ -118,3 +118,12 @@ class CourseModel:
         sql = "SELECT COUNT(*) AS total FROM courses"
         result = query_sql(sql)
         return result[0]["total"] if result else 0
+
+    @staticmethod
+    def get_active_courses():
+        """
+        查询所有启用状态的课程
+        status: 1 表示正常/启用
+        """
+        sql = "SELECT * FROM courses WHERE status = 1 ORDER BY id DESC"
+        return query_sql(sql)
